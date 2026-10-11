@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión &bull; RestoFicha POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body class="theme-dark" style="justify-content: center; align-items: center; min-height: 100vh;">
+  <div class="app-background"></div>
+
+  <div class="modal-content" style="max-width: 460px; width: 92%; margin: auto;">
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🍽️</div>
+      <h2 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;">RestoFicha POS</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Selecciona tu usuario e ingresa tu PIN</p>
+    </div>
+
+    <!-- Selector de Usuario -->
+    <div class="user-login-grid" id="user-selection-cards">
+      <button type="button" class="user-select-btn active" id="user-card-fabricio" onclick="selectUser('fabricio')">
+        <span class="user-select-avatar">💳</span>
+        <span class="user-select-name">Fabricio</span>
+        <span class="user-select-role">Caja</span>
+      </button>
+
+      <button type="button" class="user-select-btn" id="user-card-bryant" onclick="selectUser('bryant')">
+        <span class="user-select-avatar">👨‍🍳</span>
+        <span class="user-select-name">Bryant</span>
+        <span class="user-select-role">Cocina</span>
+      </button>
+
+      <button type="button" class="user-select-btn" id="user-card-admin" onclick="selectUser('admin')">
+        <span class="user-select-avatar">👑</span>
+        <span class="user-select-name">Admin</span>
+        <span class="user-select-role">Cierre</span>
+      </button>
+    </div>
+
+    <!-- Indicador de PIN -->
+    <div class="pin-display-wrapper">
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+    </div>
+
+    <!-- Teclado Numérico Táctil -->
+    <div class="virtual-numpad">
+      <button type="button" class="btn-numpad" onclick="pressPin('1')">1</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('2')">2</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('3')">3</button>
+
+      <button type="button" class="btn-numpad" onclick="pressPin('4')">4</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('5')">5</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('6')">6</button>
+
+      <button type="button" class="btn-numpad" onclick="pressPin('7')">7</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('8')">8</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('9')">9</button>
+
+      <button type="button" class="btn-numpad btn-numpad-action" style="color: #ef4444;" onclick="clearPin()">⌫ Borrar</button>
+      <button type="button" class="btn-numpad" onclick="pressPin('0')">0</button>
+      <button type="button" class="btn-numpad btn-numpad-action" style="color: #10b981;" onclick="submitPin()">✓ Entrar</button>
+    </div>
+
+    <div id="login-error-msg" style="color: #ef4444; font-size: 0.85rem; text-align: center; margin-top: 1rem; display: none;"></div>
+
+    <div style="text-align: center; margin-top: 1.2rem; font-size: 0.75rem; color: var(--text-dim);">
+      PINs por defecto: Fabricio <strong>1234</strong> &bull; Bryant <strong>5678</strong> &bull; Admin <strong>9999</strong>
+    </div>
+  </div>
+
+  <script src="js/sound.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    let selectedUsername = 'fabricio';
+    let enteredPin = '';
+
+    // Obtener parámetros de redirección
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetRedirect = urlParams.get('redirect');
+
+    function selectUser(username) {
+      SoundFX.playClick();
+      selectedUsername = username;
+      document.querySelectorAll('.user-select-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`user-card-${username}`).classList.add('active');
+      clearPin();
+    }
+
+    function pressPin(digit) {
+      if (enteredPin.length < 4) {
+        SoundFX.playClick();
+        enteredPin += digit;
+        updateDots();
+        if (enteredPin.length === 4) {
+          setTimeout(submitPin, 150);
+        }
+      }
+    }
+
+    function clearPin() {
+      SoundFX.playClick();
+      enteredPin = '';
+      updateDots();
+      hideError();
+    }
+
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.toggle('filled', i < enteredPin.length);
+      }
+    }
+
+    function showError(msg) {
+      const errEl = document.getElementById('login-error-msg');
+      errEl.innerText = msg;
+      errEl.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('login-error-msg').style.display = 'none';
+    }
+
+    async function submitPin() {
+      if (enteredPin.length === 0) return;
+
+      try {
+        const user = await POS_API.login(selectedUsername, enteredPin);
+        SoundFX.playOrderDone();
+
+        // Redirigir según el rol del usuario para evitar cruces
+        if (targetRedirect) {
+          window.location.href = targetRedirect;
+        } else if (user.role === 'caja') {
+          window.location.href = 'caja.html';
+        } else if (user.role === 'cocina') {
+          window.location.href = 'despacho.html';
+        } else if (user.role === 'admin') {
+          window.location.href = 'reportes.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      } catch (err) {
+        showError('❌ ' + err.message);
+        clearPin();
+      }
+    }
+
+    // Soporte para teclado físico
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        pressPin(e.key);
+      } else if (e.key === 'Backspace') {
+        clearPin();
+      } else if (e.key === 'Enter') {
+        submitPin();
+      }
+    });
+  </script>
+</body>
+</html>

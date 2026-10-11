@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estación de Cocina y Despacho &bull; RestoFicha POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-dark">
+  <div class="app-background"></div>
+
+  <!-- Barra de Navegación -->
+  <header class="main-nav">
+    <div class="brand">
+      <a href="index.html" class="brand-icon" title="Volver al Inicio">👨‍🍳</a>
+      <div class="brand-info">
+        <h1 class="brand-title">Estación 2: Cocina & Despacho</h1>
+        <span class="brand-subtitle" id="despacho-brand-subtitle">Pantalla KDS de Entrega en Tiempo Real</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-item">🏠 Inicio</a>
+      <a href="caja.html" class="nav-item">💳 Caja</a>
+      <a href="despacho.html" class="nav-item active">👨‍🍳 Despacho</a>
+      <a href="reportes.html" class="nav-item">📊 Contabilidad</a>
+    </nav>
+
+    <div class="nav-status">
+      <div id="user-nav-badge"></div>
+      <button class="btn-toggle-sound sound-on" id="btn-toggle-sound" onclick="toggleAudio()">
+        <span id="sound-icon">🔔</span>
+        <span id="sound-label">Sonido Activo</span>
+      </button>
+
+      <div class="connection-pill" id="connection-status">
+        <span class="status-dot online"></span>
+        <span class="status-text">En Línea</span>
+      </div>
+
+      <div class="clock-display" id="live-clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal KDS -->
+  <main class="container">
+    <div class="kds-header">
+      <div class="kds-title-group">
+        <h2>
+          <span>📋</span>
+          <span id="kds-current-view-title">Comandas por Servir y Entregar</span>
+        </h2>
+        <span class="kds-subtitle" id="kds-stats-summary">Cargando pedidos en cola...</span>
+      </div>
+
+      <div class="kds-controls">
+        <div class="kds-tabs">
+          <button type="button" class="kds-tab-btn active" id="tab-pendientes" onclick="setKdsTab('pendientes')">
+            🔥 En Cola (<span id="count-pendientes">0</span>)
+          </button>
+          <button type="button" class="kds-tab-btn" id="tab-entregados" onclick="setKdsTab('entregados')">
+            ✅ Entregados Hoy (<span id="count-entregados">0</span>)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejilla de Tarjetas de Comanda -->
+    <div class="kds-grid" id="kds-cards-container">
+      <div class="kds-empty-state">
+        <span class="kds-empty-icon">⏳</span>
+        <h3>Conectando con la Caja...</h3>
+        <p>Esperando pedidos...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/sound.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/despacho.js"></script>
+</body>
+</html>

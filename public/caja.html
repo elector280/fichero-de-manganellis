@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estación de Caja &bull; RestoFicha POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-dark">
+  <div class="app-background"></div>
+
+  <!-- Barra de Navegación -->
+  <header class="main-nav">
+    <div class="brand">
+      <a href="index.html" class="brand-icon" title="Volver al Inicio">🍽️</a>
+      <div class="brand-info">
+        <h1 class="brand-title">Estación 1: Caja & Cobro</h1>
+        <span class="brand-subtitle" id="restaurant-brand-name">Toma de Comandas &bull; Precio Fijo</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-item">🏠 Inicio</a>
+      <a href="caja.html" class="nav-item active">💳 Caja</a>
+      <a href="despacho.html" class="nav-item">👨‍🍳 Despacho</a>
+      <a href="reportes.html" class="nav-item">📊 Contabilidad</a>
+    </nav>
+
+    <div class="nav-status">
+      <div id="user-nav-badge"></div>
+      <div class="connection-pill" id="connection-status">
+        <span class="status-dot online"></span>
+        <span class="status-text">En Línea</span>
+      </div>
+      <div class="clock-display" id="live-clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal POS -->
+  <main class="container">
+    <div class="pos-layout">
+      <!-- Columna Izquierda: Formulario de Cobro -->
+      <section class="pos-billing-panel">
+        <div class="pos-panel-title">
+          <h2><span>📝</span> Nueva Comanda</h2>
+          <span class="next-ticket-badge" id="next-ticket-preview">Ficha #...</span>
+        </div>
+
+        <form id="order-form" onsubmit="event.preventDefault(); submitOrder();">
+          <!-- Nombre y Apellido del Cliente -->
+          <div class="form-group">
+            <label class="form-label" for="customer-name">
+              <span>Nombre y Apellido del Cliente</span>
+              <span style="color: #60a5fa; font-weight: normal; font-size: 0.75rem;">Obligatorio</span>
+            </label>
+            <input 
+              type="text" 
+              id="customer-name" 
+              class="input-customer" 
+              placeholder="Ej. Juan Pérez" 
+              autocomplete="off" 
+              required
+              autofocus
+            >
+          </div>
+
+          <!-- Selector de Cantidad de Productos -->
+          <div class="form-group quantity-picker">
+            <label class="form-label">
+              <span>Cantidad de Productos / Fichas</span>
+              <span id="price-per-item-hint" style="color: var(--text-muted); font-size: 0.8rem;">Precio unitario: $5.00</span>
+            </label>
+            
+            <div class="qty-counter-box">
+              <button type="button" class="btn-qty-step" id="btn-qty-minus" onclick="adjustQty(-1)">&minus;</button>
+              <div class="qty-display-wrapper">
+                <span class="qty-number" id="qty-display">3</span>
+                <span class="qty-unit-label">Productos</span>
+              </div>
+              <button type="button" class="btn-qty-step" id="btn-qty-plus" onclick="adjustQty(1)">&plus;</button>
+            </div>
+
+            <!-- Botones Rápidos de Cantidad -->
+            <div class="quick-qty-grid">
+              <button type="button" class="btn-quick-qty" onclick="setQty(1)">1</button>
+              <button type="button" class="btn-quick-qty" onclick="setQty(2)">2</button>
+              <button type="button" class="btn-quick-qty active" onclick="setQty(3)">3</button>
+              <button type="button" class="btn-quick-qty" onclick="setQty(4)">4</button>
+              <button type="button" class="btn-quick-qty" onclick="setQty(5)">5</button>
+              <button type="button" class="btn-quick-qty" onclick="setQty(6)">6</button>
+            </div>
+          </div>
+
+          <!-- Resumen de Precio Fijo y Total -->
+          <div class="pricing-summary-card">
+            <div class="price-item">
+              <span class="price-item-label">Cálculo</span>
+              <span class="price-item-value" id="price-calculation-text">3 × $5.00</span>
+            </div>
+            <div class="price-item price-total">
+              <span class="price-item-label">Total a Cobrar</span>
+              <span class="price-item-value" id="price-total-display">$15.00</span>
+            </div>
+          </div>
+
+          <!-- Método de Pago -->
+          <div class="form-group">
+            <label class="form-label">Método de Pago</label>
+            <div class="payment-methods-grid">
+              <button type="button" class="btn-payment-method active" id="pay-efectivo" onclick="setPaymentMethod('Efectivo')">
+                💵 Efectivo
+              </button>
+              <button type="button" class="btn-payment-method" id="pay-tarjeta" onclick="setPaymentMethod('Tarjeta')">
+                💳 Tarjeta
+              </button>
+              <button type="button" class="btn-payment-method" id="pay-transf" onclick="setPaymentMethod('Transferencia')">
+                📱 Móvil/Transf.
+              </button>
+            </div>
+          </div>
+
+          <!-- Asistente de Cambio / Vuelto (Solo efectivo) -->
+          <div class="cash-calculator-row" id="cash-calculator-box">
+            <span class="cash-change-label">💵 Recibe $:</span>
+            <input 
+              type="number" 
+              id="cash-received" 
+              class="cash-calc-input" 
+              placeholder="0.00" 
+              step="any" 
+              oninput="calculateChange()"
+            >
+            <span class="cash-change-label">Cambio / Vuelto:</span>
+            <span class="cash-change-amount" id="cash-change-display">$0.00</span>
+          </div>
+
+          <!-- Botón de Cobro Primario -->
+          <button type="submit" class="btn-checkout-primary" id="btn-submit-order">
+            <span>⚡ COBRAR Y ENVIAR A COCINA (Enter)</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Columna Derecha: Comandas Recientes de Hoy -->
+      <section class="pos-orders-panel">
+        <div class="orders-panel-header">
+          <h3>
+            <span>📋</span> Comandas Emitidas Hoy
+          </h3>
+          <span class="orders-count-pill" id="today-orders-count">0 pedidos</span>
+        </div>
+
+        <div class="orders-scroll-list" id="today-orders-list">
+          <!-- Renderizado dinámico -->
+          <div style="text-align: center; color: var(--text-dim); padding: 3rem 1rem;">
+            Cargando comandas del día...
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal de Ticket / Recibo de Éxito -->
+  <div class="modal-overlay" id="ticket-modal">
+    <div class="modal-content" style="max-width: 380px; text-align: center;">
+      <div class="modal-header" style="justify-content: center; border: none; padding-bottom: 0;">
+        <div style="font-size: 2.5rem;">✅</div>
+      </div>
+      <div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.3rem;">¡Comanda Registrada!</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Enviada a la pantalla de cocina</p>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 1.5rem; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); display: flex; flex-direction: column; gap: 0.8rem;">
+        <span style="font-family: var(--font-mono); font-size: 2.8rem; font-weight: 900; color: #60a5fa;" id="modal-ticket-number">#001</span>
+        <div style="font-size: 1.3rem; font-weight: 800;" id="modal-customer-name">Cliente</div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 0.8rem; font-size: 0.95rem;">
+          <span style="color: var(--text-muted);">Cantidad:</span>
+          <strong id="modal-qty" style="font-family: var(--font-mono); color: #fbbf24;">3 Productos</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem;">
+          <span style="color: var(--text-muted);">Total Cobrado:</span>
+          <strong id="modal-total" style="font-family: var(--font-mono); color: #34d399;">$15.00</strong>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: center; border: none; padding-top: 0;">
+        <button type="button" class="btn-action" style="background: var(--accent-primary); border: none; padding: 0.8rem 2rem; border-radius: var(--radius-md); cursor: pointer;" onclick="closeTicketModal()">
+          Siguiente Pedido (Espacio / Esc)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/sound.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/caja.js"></script>
+</body>
+</html>

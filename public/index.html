@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RestoFicha - Sistema de Comandas y Fichas para Restaurante</title>
+  <meta name="description" content="Sistema de fichas y comandas para restaurante con dos estaciones sincronizadas en tiempo real: Caja y Despacho, con módulo de contabilidad diaria.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-dark landing-page">
+  <div class="app-background"></div>
+
+  <header class="main-nav">
+    <div class="brand">
+      <div class="brand-icon">🍽️</div>
+      <div class="brand-info">
+        <h1 class="brand-title">RestoFicha POS</h1>
+        <span class="brand-subtitle" id="restaurant-name-badge">Fichero & Despacho Rápido</span>
+      </div>
+    </div>
+    <div class="nav-status">
+      <div id="user-nav-badge"></div>
+      <div class="connection-pill" id="connection-status">
+        <span class="status-dot online"></span>
+        <span class="status-text">Sistema En Línea</span>
+      </div>
+      <div class="clock-display" id="live-clock">--:--:--</div>
+    </div>
+  </header>
+
+  <main class="container hub-container">
+    <section class="welcome-banner">
+      <div class="banner-content">
+        <span class="badge-tag">Sincronización en Tiempo Real</span>
+        <h2>Panel de Estaciones de Trabajo</h2>
+        <p>Selecciona una estación para operar desde este dispositivo o conecta otra pantalla/tablet escaneando el código de la red local.</p>
+      </div>
+      <div class="today-quick-stats">
+        <div class="quick-stat-box">
+          <span class="stat-number" id="hub-today-orders">0</span>
+          <span class="stat-label">Comandas Hoy</span>
+        </div>
+        <div class="quick-stat-box highlight">
+          <span class="stat-number" id="hub-today-items">0</span>
+          <span class="stat-label">Fichas / Productos</span>
+        </div>
+        <div class="quick-stat-box">
+          <span class="stat-number" id="hub-today-total">$0.00</span>
+          <span class="stat-label">Total Recaudado</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="station-grid">
+      <!-- Estacion 1: Caja -->
+      <a href="caja.html" class="station-card card-caja" id="card-caja-link">
+        <div class="station-header">
+          <div class="station-icon">💳</div>
+          <span class="station-badge">Estación 1</span>
+        </div>
+        <div class="station-body">
+          <h3>Caja y Cobro</h3>
+          <p>Registra el nombre y apellido del cliente, indica la cantidad de productos con precio único fijo y genera la ficha al instante.</p>
+          <ul class="station-features">
+            <li><span>✓</span> Botones táctiles ultra-rápidos (+1, +2, +3...)</li>
+            <li><span>✓</span> Cálculo automático del total a cobrar</li>
+            <li><span>✓</span> Envío instantáneo a la cocina</li>
+          </ul>
+        </div>
+        <div class="station-footer">
+          <span class="btn-action">Abrir Caja &rarr;</span>
+        </div>
+      </a>
+
+      <!-- Estacion 2: Cocina / Despacho -->
+      <a href="despacho.html" class="station-card card-despacho" id="card-despacho-link">
+        <div class="station-header">
+          <div class="station-icon">👨‍🍳</div>
+          <span class="station-badge">Estación 2</span>
+        </div>
+        <div class="station-body">
+          <h3>Cocina y Despacho</h3>
+          <p>Pantalla en tiempo real para preparar y servir pedidos. Visualiza los clientes pendientes, la cantidad de productos y marca cuando se entrega.</p>
+          <ul class="station-features">
+            <li><span>✓</span> Notificación sonora al entrar un pedido</li>
+            <li><span>✓</span> Tarjetas grandes de alta visibilidad</li>
+            <li><span>✓</span> Un toque para marcar como entregado</li>
+          </ul>
+        </div>
+        <div class="station-footer">
+          <span class="btn-action">Abrir Despacho &rarr;</span>
+        </div>
+      </a>
+
+      <!-- Modulo 3: Contabilidad y Cierres -->
+      <a href="reportes.html" class="station-card card-reportes" id="card-reportes-link">
+        <div class="station-header">
+          <div class="station-icon">📊</div>
+          <span class="station-badge">Administración</span>
+        </div>
+        <div class="station-body">
+          <h3>Recuento y Contabilidad</h3>
+          <p>Historial diario guardado permanentemente. Revisa ventas del día o fechas anteriores, total recaudado, productos entregados y cierre de caja.</p>
+          <ul class="station-features">
+            <li><span>✓</span> Arqueo y balance diario de caja</li>
+            <li><span>✓</span> Historial completo por fechas</li>
+            <li><span>✓</span> Exportar a Excel e imprimir informe</li>
+          </ul>
+        </div>
+        <div class="station-footer">
+          <span class="btn-action">Ver Reportes &rarr;</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Seccion de Conexión en Red Local para la 2da Pantalla -->
+    <section class="network-connect-section">
+      <div class="network-info-card">
+        <div class="network-text">
+          <div class="tag-live">📡 Conectar Segundo Dispositivo (Tablet / Celular)</div>
+          <h3>¿Cómo usar la segunda pantalla en la cocina o barra?</h3>
+          <p>Abre el navegador en cualquier tablet, teléfono o computadora conectada a la misma red Wi-Fi e ingresa a una de las siguientes direcciones:</p>
+          
+          <div class="ip-links-container" id="local-ip-container">
+            <div class="ip-chip">
+              <span class="ip-title">Para la Cocina / Despacho:</span>
+              <code id="kitchen-url">http://localhost:3000/despacho.html</code>
+              <button class="btn-copy" onclick="copyToClipboard('kitchen-url')">Copiar</button>
+            </div>
+            <div class="ip-chip">
+              <span class="ip-title">Para la Caja:</span>
+              <code id="cashier-url">http://localhost:3000/caja.html</code>
+              <button class="btn-copy" onclick="copyToClipboard('cashier-url')">Copiar</button>
+            </div>
+          </div>
+        </div>
+        <div class="qr-container">
+          <div class="qr-box">
+            <div id="qr-code-display" class="qr-placeholder">
+              <span class="qr-icon">📱</span>
+              <span class="qr-label">Código QR</span>
+            </div>
+          </div>
+          <span class="qr-hint">Escanea desde la tablet de cocina</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <p>RestoFicha POS &bull; Diseñado para servicio rápido &bull; Todos los productos a precio único</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Reloj en vivo
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('live-clock').innerText = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Copiar URL al portapapeles
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Enlace copiado al portapapeles: ' + text);
+      });
+    }
+
+    // Cargar estadísticas rápidas de hoy
+    async function loadHubStats() {
+      try {
+        const stats = await POS_API.getDailyStats(new Date().toISOString().split('T')[0]);
+        if (stats) {
+          document.getElementById('hub-today-orders').innerText = stats.totalOrders || 0;
+          document.getElementById('hub-today-items').innerText = stats.totalItems || 0;
+          document.getElementById('hub-today-total').innerText = POS_API.formatCurrency(stats.totalRevenue || 0);
+        }
+      } catch (err) {
+        console.warn('Hub stats loading:', err);
+      }
+    }
+
+    // Configurar URLs con la IP actual
+    async function setupNetworkUrls() {
+      const host = window.location.host || 'localhost:3000';
+      const protocol = window.location.protocol || 'http:';
+      let kitchenUrl = `${protocol}//${host}/despacho.html`;
+      let cashierUrl = `${protocol}//${host}/caja.html`;
+
+      // Intentar obtener IP local si el servidor la provee
+      try {
+        const info = await POS_API.getServerInfo();
+        if (info && info.localIp && info.localIp !== 'localhost') {
+          kitchenUrl = `${protocol}//${info.localIp}:${info.port}/despacho.html`;
+          cashierUrl = `${protocol}//${info.localIp}:${info.port}/caja.html`;
+        }
+      } catch(e) {}
+
+      document.getElementById('kitchen-url').innerText = kitchenUrl;
+      document.getElementById('cashier-url').innerText = cashierUrl;
+
+      // Renderizar código QR
+      const qrDisplay = document.getElementById('qr-code-display');
+      if (qrDisplay) {
+        qrDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(kitchenUrl)}" alt="QR Cocina" style="width:100%; height:100%; border-radius: 8px; object-fit: contain;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:2rem\\'>📱</span><span style=\\'font-size:0.75rem;font-weight:bold\\'>Escanea URL</span>'">`;
+      }
+    }
+
+    // Navegación con verificación de roles
+    function navigateStation(event, targetUrl, allowedRoles) {
+      event.preventDefault();
+      const user = POS_API.getCurrentUser();
+      if (!user) {
+        window.location.href = `login.html?redirect=${targetUrl}`;
+        return;
+      }
+      if (!allowedRoles.includes(user.role)) {
+        alert(`⛔ Acceso Denegado:\nEl usuario activo en este dispositivo es "${user.name}" (${user.title || user.role}).\nNo tiene permisos para abrir esta sección para evitar cruces.`);
+        return;
+      }
+      window.location.href = targetUrl;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setupNetworkUrls();
+      loadHubStats();
+      setInterval(loadHubStats, 10000);
+
+      // Asignar eventos de clic controlado
+      document.getElementById('card-caja-link').addEventListener('click', (e) => navigateStation(e, 'caja.html', ['caja', 'admin']));
+      document.getElementById('card-despacho-link').addEventListener('click', (e) => navigateStation(e, 'despacho.html', ['cocina', 'admin']));
+      document.getElementById('card-reportes-link').addEventListener('click', (e) => navigateStation(e, 'reportes.html', ['admin']));
+    });
+  </script>
+</body>
+</html>

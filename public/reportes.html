@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuento y Contabilidad Diaria &bull; RestoFicha POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-dark">
+  <div class="app-background"></div>
+
+  <!-- Barra de Navegación -->
+  <header class="main-nav">
+    <div class="brand">
+      <a href="index.html" class="brand-icon" title="Volver al Inicio">📊</a>
+      <div class="brand-info">
+        <h1 class="brand-title">Recuento y Contabilidad</h1>
+        <span class="brand-subtitle" id="restaurant-nav-title">Cierre de Caja &bull; Historial Diario</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-item">🏠 Inicio</a>
+      <a href="caja.html" class="nav-item">💳 Caja</a>
+      <a href="despacho.html" class="nav-item">👨‍🍳 Despacho</a>
+      <a href="reportes.html" class="nav-item active">📊 Contabilidad</a>
+    </nav>
+
+    <div class="nav-status">
+      <div id="user-nav-badge"></div>
+      <button class="btn-report-action" onclick="openSettingsModal()">
+        <span>⚙️</span> Ajustes & Precios
+      </button>
+
+      <div class="connection-pill" id="connection-status">
+        <span class="status-dot online"></span>
+        <span class="status-text">En Línea</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Reportes -->
+  <main class="container">
+    <div class="reports-header">
+      <div class="reports-date-filter">
+        <span style="font-weight: 600; color: var(--text-muted);">📅 Fecha a Auditar:</span>
+        <input type="date" id="selected-date" class="reports-date-input" onchange="loadReportsForDate()">
+        <button type="button" class="btn-copy" onclick="setDateToday()">Hoy</button>
+      </div>
+
+      <div class="reports-action-buttons">
+        <button type="button" class="btn-report-action" onclick="exportCsv()">
+          <span>📥</span> Exportar a Excel
+        </button>
+        <button type="button" class="btn-report-action btn-report-primary" onclick="window.print()">
+          <span>🖨️</span> Imprimir Cierre Diario
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel KPI Métricas Principales -->
+    <div class="kpi-grid">
+      <div class="kpi-card highlight-green">
+        <span class="kpi-icon">💰</span>
+        <span class="kpi-title">Total Recaudado</span>
+        <span class="kpi-value" id="kpi-revenue">$0.00</span>
+        <span class="kpi-subtext" id="kpi-revenue-subtext">0 pedidos registrados</span>
+      </div>
+
+      <div class="kpi-card highlight-blue">
+        <span class="kpi-icon">📦</span>
+        <span class="kpi-title">Productos Vendidos</span>
+        <span class="kpi-value" id="kpi-items">0</span>
+        <span class="kpi-subtext">Total de fichas cobradas</span>
+      </div>
+
+      <div class="kpi-card highlight-purple">
+        <span class="kpi-icon">👥</span>
+        <span class="kpi-title">Clientes Atendidos</span>
+        <span class="kpi-value" id="kpi-orders">0</span>
+        <span class="kpi-subtext" id="kpi-delivered-subtext">0 entregados</span>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-icon">📈</span>
+        <span class="kpi-title">Ticket Promedio</span>
+        <span class="kpi-value" id="kpi-average">$0.00</span>
+        <span class="kpi-subtext">Por cliente atendido</span>
+      </div>
+    </div>
+
+    <!-- Desglose por Método de Pago -->
+    <div class="payment-breakdown-card">
+      <h3><span>💳</span> Arqueo de Caja &bull; Desglose por Método de Pago</h3>
+      <div class="payment-breakdown-bars">
+        <div class="pay-method-stat">
+          <span class="pay-stat-title">💵 Efectivo</span>
+          <span class="pay-stat-amount" id="pay-amount-efectivo">$0.00</span>
+        </div>
+        <div class="pay-method-stat">
+          <span class="pay-stat-title">💳 Tarjeta de Débito / Crédito</span>
+          <span class="pay-stat-amount" id="pay-amount-tarjeta">$0.00</span>
+        </div>
+        <div class="pay-method-stat">
+          <span class="pay-stat-title">📱 Móvil / Transferencia</span>
+          <span class="pay-stat-amount" id="pay-amount-transf">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla Detallada de Comandas del Día -->
+    <div class="data-table-container">
+      <div class="table-toolbar">
+        <h3>Detalle de Comandas del Día (Auditoría de Operadores)</h3>
+        <input 
+          type="text" 
+          id="table-search" 
+          class="table-search-input" 
+          placeholder="🔍 Buscar por cliente o ficha..." 
+          oninput="filterTable()"
+        >
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Ficha</th>
+              <th>Hora</th>
+              <th>Nombre y Apellido</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+              <th>Pago</th>
+              <th>Cobró (Caja)</th>
+              <th>Despachó (Cocina)</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--text-dim); padding: 2rem;">
+                Cargando registros...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Configuración, Precios y Cambio de PINs -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3>⚙️ Ajustes & Seguridad (Admin)</h3>
+        <button class="btn-close-modal" onclick="closeSettingsModal()">&times;</button>
+      </div>
+
+      <form id="settings-form" onsubmit="event.preventDefault(); saveSettings();">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="setting-restaurant-name">Nombre del Restaurante</label>
+          <input type="text" id="setting-restaurant-name" class="input-customer" style="font-size: 1.05rem; padding: 0.6rem 0.9rem;" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="form-group">
+            <label class="form-label" for="setting-product-price">Precio Fijo Producto</label>
+            <input type="number" id="setting-product-price" class="input-customer" style="font-size: 1.05rem; padding: 0.6rem 0.9rem;" step="any" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-currency-symbol">Símbolo Moneda</label>
+            <input type="text" id="setting-currency-symbol" class="input-customer" style="font-size: 1.05rem; padding: 0.6rem 0.9rem;" placeholder="$" required>
+          </div>
+        </div>
+
+        <!-- Seccion de PINs de usuarios -->
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-size: 1rem; margin-bottom: 0.8rem; color: #60a5fa;">🔑 Seguridad: Cambiar PIN de Acceso</h4>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface); padding: 0.6rem 0.9rem; border-radius: var(--radius-sm);">
+              <div>
+                <strong style="font-size: 0.9rem;">💳 Fabricio</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Operador de Caja</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="password" id="pin-fabricio" placeholder="Nuevo PIN" style="width: 100px; background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; padding: 0.4rem; border-radius: 4px; text-align: center; font-family: var(--font-mono);">
+                <button type="button" class="btn-copy" onclick="updateUserPin('fabricio', 'pin-fabricio')">Guardar</button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface); padding: 0.6rem 0.9rem; border-radius: var(--radius-sm);">
+              <div>
+                <strong style="font-size: 0.9rem;">👨‍🍳 Bryant</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Cocina / Despacho</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="password" id="pin-bryant" placeholder="Nuevo PIN" style="width: 100px; background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; padding: 0.4rem; border-radius: 4px; text-align: center; font-family: var(--font-mono);">
+                <button type="button" class="btn-copy" onclick="updateUserPin('bryant', 'pin-bryant')">Guardar</button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface); padding: 0.6rem 0.9rem; border-radius: var(--radius-sm);">
+              <div>
+                <strong style="font-size: 0.9rem;">👑 Administrador</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Reportes y Cierres</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="password" id="pin-admin" placeholder="Nuevo PIN" style="width: 100px; background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; padding: 0.4rem; border-radius: 4px; text-align: center; font-family: var(--font-mono);">
+                <button type="button" class="btn-copy" onclick="updateUserPin('admin', 'pin-admin')">Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-report-action" onclick="closeSettingsModal()">Cerrar</button>
+          <button type="submit" class="btn-report-action btn-report-primary">Guardar Ajustes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/sound.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/reportes.js"></script>
+</body>
+</html>

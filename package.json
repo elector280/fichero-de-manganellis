@@ -1,0 +1,13 @@
+{
+  "name": "restaurante-fichero-pos",
+  "version": "1.0.0",
+  "description": "Sistema de comandas y fichas de precio único con 2 estaciones en tiempo real y contabilidad diaria",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
