@@ -33,11 +33,13 @@ const defaultData = {
     restaurantName: 'Mi Restaurante',
     productPrice: 5.00,
     currencySymbol: '$',
-    autoPrintTicket: false
+    autoPrintTicket: false,
+    kitchenPaidUpToDate: null
   },
   users: defaultUsers,
   dailyCounters: {},
-  orders: []
+  orders: [],
+  kitchenPayments: []
 };
 
 // Cargar base de datos
@@ -50,7 +52,8 @@ function loadData() {
         settings: { ...defaultData.settings, ...(parsed.settings || {}) },
         users: (parsed.users && parsed.users.length) ? parsed.users : defaultUsers,
         dailyCounters: parsed.dailyCounters || {},
-        orders: parsed.orders || []
+        orders: parsed.orders || [],
+        kitchenPayments: parsed.kitchenPayments || []
       };
     }
   } catch (err) {
@@ -453,8 +456,85 @@ app.get('/api/stats/daily', requireRole(['admin']), (req, res) => {
     pendingOrders,
     paymentBreakdown,
     availableDates,
-    currencySymbol: db.settings.currencySymbol
+    currencySymbol: db.settings.currencySymbol,
+    kitchenPaidUpToDate: db.settings.kitchenPaidUpToDate
   });
+});
+
+// ==================== CONTROL DE PAGOS A LA COCINA (BRYANT) ====================
+// Obtener estado de pago de cocina (Admin y Cocina)
+app.get('/api/kitchen-payments', authUser, (req, res) => {
+  res.json({
+    paidUpToDate: db.settings.kitchenPaidUpToDate || null,
+    payments: db.kitchenPayments || []
+  });
+});
+
+// Registrar nuevo pago a cocina (Solo Admin)
+app.post('/api/kitchen-payments', requireRole(['admin']), (req, res) => {
+  const { paidUpToDate, amount, notes, paidTo } = req.body;
+
+  if (!paidUpToDate) {
+    return res.status(400).json({ error: 'La fecha hasta la que se paga es obligatoria' });
+  }
+
+  const paymentRecord = {
+    id: 'kpay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    paidUpToDate: String(paidUpToDate).trim(),
+    paymentDate: getLocalDateString(),
+    amount: Math.max(0, parseFloat(amount) || 0),
+    paidTo: paidTo ? String(paidTo).trim() : 'Bryant (Cocina)',
+    notes: notes ? String(notes).trim() : '',
+    registeredBy: req.user ? req.user.name : 'Administrador',
+    createdAt: new Date().toISOString()
+  };
+
+  db.kitchenPayments = db.kitchenPayments || [];
+  db.kitchenPayments.unshift(paymentRecord);
+  db.settings.kitchenPaidUpToDate = paymentRecord.paidUpToDate;
+
+  saveData(db);
+
+  broadcastSSE('kitchen_payment_updated', {
+    paidUpToDate: db.settings.kitchenPaidUpToDate,
+    latestPayment: paymentRecord
+  });
+
+  res.status(201).json({
+    success: true,
+    payment: paymentRecord,
+    paidUpToDate: db.settings.kitchenPaidUpToDate
+  });
+});
+
+// Eliminar registro de pago a cocina (Solo Admin)
+app.delete('/api/kitchen-payments/:id', requireRole(['admin']), (req, res) => {
+  const { id } = req.params;
+  db.kitchenPayments = db.kitchenPayments || [];
+  const index = db.kitchenPayments.findIndex(p => p.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Registro de pago no encontrado' });
+  }
+
+  const removed = db.kitchenPayments.splice(index, 1)[0];
+  
+  // Re-calcular la fecha más reciente pagada
+  if (db.kitchenPayments.length > 0) {
+    const dates = db.kitchenPayments.map(p => p.paidUpToDate).sort().reverse();
+    db.settings.kitchenPaidUpToDate = dates[0];
+  } else {
+    db.settings.kitchenPaidUpToDate = null;
+  }
+
+  saveData(db);
+
+  broadcastSSE('kitchen_payment_updated', {
+    paidUpToDate: db.settings.kitchenPaidUpToDate,
+    removedId: removed.id
+  });
+
+  res.json({ success: true, removed, paidUpToDate: db.settings.kitchenPaidUpToDate });
 });
 
 // Iniciar servidor escuchando en todas las interfaces para conexión Wi-Fi de las tablets

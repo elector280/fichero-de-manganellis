@@ -15,8 +15,8 @@ Para garantizar que nadie manipule la información del otro, el sistema cuenta c
 | Usuario | Rol | PIN por Defecto | Permisos |
 | :--- | :--- | :---: | :--- |
 | **💳 Fabricio** | **Cajero** | `1234` | Toma pedidos, cobra y emite fichas. **Bloqueado de reportes y de despacho.** |
-| **👨‍🍳 Bryant** | **Cocina / Despacho** | `5678` | Visualiza pedidos en cola, prepara y despacha. **Bloqueado de caja y de reportes.** |
-| **👑 Administrador** | **Admin General** | `9999` | Supervisa todo, audita quién cobró y quién despachó, ve el recuento final del día y cambia PINs. |
+| **👨‍🍳 Bryant** | **Cocina / Despacho** | `5678` | Visualiza pedidos en cola, prepara y despacha. Ve el estado de hasta qué fecha se le ha pagado. **Bloqueado de caja y de reportes.** |
+| **👑 Administrador** | **Admin General** | `9999` | Supervisa todo, audita quién cobró y quién despachó, ve el recuento final del día, gestiona el **pago a los cocineros hasta cierta fecha** y cambia PINs. |
 
 ---
 

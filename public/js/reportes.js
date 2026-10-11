@@ -237,11 +237,119 @@ async function saveSettings() {
   }
 }
 
-// Suscribirse a eventos para refrescar en vivo si estamos viendo el día actual
+// ==================== GESTIÓN DE PAGOS A COCINA ====================
+let kitchenPaymentsList = [];
+
+async function loadKitchenPayments() {
+  const badge = document.getElementById('kitchen-paid-status-badge');
+  const tbody = document.getElementById('kitchen-payments-tbody');
+
+  try {
+    const data = await POS_API.getKitchenPayments();
+    kitchenPaymentsList = data.payments || [];
+
+    if (data.paidUpToDate) {
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#34d399';
+      badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      badge.innerHTML = `✅ Cocina pagada hasta el: <strong>${data.paidUpToDate}</strong>`;
+    } else {
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#fbbf24';
+      badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+      badge.innerText = '⚠️ Sin pagos registrados a cocina';
+    }
+
+    if (kitchenPaymentsList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 1.8rem;">
+            No hay registros de pago a la cocina aún. Haz clic en "Registrar Pago a Cocina" para asentar el primer pago.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = kitchenPaymentsList.map(pay => `
+      <tr>
+        <td style="font-family: var(--font-mono);">${pay.paymentDate}</td>
+        <td><strong style="color: #60a5fa; font-family: var(--font-mono); font-size: 1rem;">${pay.paidUpToDate}</strong></td>
+        <td>${escapeHtml(pay.paidTo)}</td>
+        <td style="font-family: var(--font-mono); font-weight: 700; color: #34d399;">${activeCurrency}${Number(pay.amount).toFixed(2)}</td>
+        <td><span style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(pay.notes || '-')}</span></td>
+        <td><span style="font-size: 0.8rem; background: var(--bg-surface); padding: 0.2rem 0.5rem; border-radius: var(--radius-sm);">${escapeHtml(pay.registeredBy)}</span></td>
+        <td>
+          <button type="button" class="btn-copy" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="removeKitchenPayment('${pay.id}')" title="Eliminar registro">
+            🗑️ Anular
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+  } catch (err) {
+    console.warn('Error cargando pagos a cocina:', err);
+  }
+}
+
+function openKitchenPaymentModal() {
+  document.getElementById('kpay-upto-date').value = selectedDateInput.value || new Date().toISOString().split('T')[0];
+  document.getElementById('kpay-amount').value = '';
+  document.getElementById('kpay-notes').value = '';
+  document.getElementById('kitchen-payment-modal').classList.add('active');
+}
+
+function closeKitchenPaymentModal() {
+  document.getElementById('kitchen-payment-modal').classList.remove('active');
+}
+
+async function submitKitchenPayment() {
+  const uptoDate = document.getElementById('kpay-upto-date').value;
+  const amount = document.getElementById('kpay-amount').value;
+  const paidTo = document.getElementById('kpay-to').value.trim();
+  const notes = document.getElementById('kpay-notes').value.trim();
+
+  if (!uptoDate) {
+    alert('Por favor selecciona la fecha hasta la que se liquida el pago.');
+    return;
+  }
+
+  try {
+    await POS_API.createKitchenPayment({
+      paidUpToDate: uptoDate,
+      amount: amount,
+      paidTo: paidTo,
+      notes: notes
+    });
+
+    closeKitchenPaymentModal();
+    SoundFX.playOrderDone();
+    alert(`✅ Pago registrado exitosamente.\nSe ha marcado que la cocina está pagada hasta el ${uptoDate}.`);
+    loadKitchenPayments();
+  } catch (err) {
+    alert('Error al registrar pago: ' + err.message);
+  }
+}
+
+async function removeKitchenPayment(id) {
+  if (!confirm('¿Estás seguro de que deseas anular este registro de pago a la cocina?')) return;
+
+  try {
+    await POS_API.deleteKitchenPayment(id);
+    loadKitchenPayments();
+  } catch (err) {
+    alert('Error al eliminar registro: ' + err.message);
+  }
+}
+
+// Suscribirse a eventos para refrescar en vivo
 POS_API.subscribe((event) => {
   const today = new Date().toISOString().split('T')[0];
   if (selectedDateInput.value === today) {
     loadReportsForDate();
+  }
+  if (event === 'kitchen_payment_updated') {
+    loadKitchenPayments();
   }
 });
 
@@ -249,5 +357,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Exclusivo para el Administrador al final del día
   if (!POS_API.requireAuth(['admin'], 'index.html')) return;
   setDateToday();
+  loadKitchenPayments();
 });
 

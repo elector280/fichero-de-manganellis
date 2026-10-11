@@ -232,8 +232,36 @@ POS_API.subscribe((event, data) => {
   } else if (event === 'order_deleted') {
     allOrders = allOrders.filter(o => o.id !== data.id);
     renderKdsGrid();
+  } else if (event === 'kitchen_payment_updated') {
+    updateKitchenPaidBadge();
   }
 });
+
+// Mostrar hasta qué día se ha pagado la cocina
+async function updateKitchenPaidBadge() {
+  const pill = document.getElementById('kitchen-worker-paid-pill');
+  const text = document.getElementById('kitchen-worker-paid-text');
+  if (!pill || !text) return;
+
+  try {
+    const data = await POS_API.getKitchenPayments();
+    if (data.paidUpToDate) {
+      pill.style.display = 'inline-flex';
+      text.innerHTML = `💵 Pagado hasta: <strong>${data.paidUpToDate}</strong>`;
+      pill.style.background = 'rgba(16, 185, 129, 0.12)';
+      pill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      pill.style.color = '#34d399';
+    } else {
+      pill.style.display = 'inline-flex';
+      text.innerText = '💵 Pagos: Pendiente de liquidación';
+      pill.style.background = 'rgba(245, 158, 11, 0.12)';
+      pill.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+      pill.style.color = '#fbbf24';
+    }
+  } catch (e) {
+    pill.style.display = 'none';
+  }
+}
 
 // Actualizar contadores de tiempo relativo cada 30 segundos
 setInterval(() => {
@@ -255,5 +283,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   loadKdsData();
+  updateKitchenPaidBadge();
 });
+
 

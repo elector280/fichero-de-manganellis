@@ -3,7 +3,8 @@
     "restaurantName": "Mi Restaurante",
     "productPrice": 5,
     "currencySymbol": "$",
-    "autoPrintTicket": false
+    "autoPrintTicket": false,
+    "kitchenPaidUpToDate": "2026-10-10"
   },
   "users": [
     {
@@ -108,6 +109,18 @@
       "servedAt": "2026-10-11T09:25:34.654Z",
       "createdBy": "Fabricio",
       "servedBy": "Bryant"
+    }
+  ],
+  "kitchenPayments": [
+    {
+      "id": "kpay_1791712221225_nbkmr6",
+      "paidUpToDate": "2026-10-10",
+      "paymentDate": "2026-10-11",
+      "amount": 120,
+      "paidTo": "Bryant (Cocina)",
+      "notes": "Pago semanal liquidado",
+      "registeredBy": "Administrador",
+      "createdAt": "2026-10-11T09:50:21.225Z"
     }
   ]
 }

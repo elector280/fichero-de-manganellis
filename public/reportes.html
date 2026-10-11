@@ -111,6 +111,48 @@
       </div>
     </div>
 
+    <!-- Control de Pagos a la Cocina / Bryant -->
+    <div class="payment-breakdown-card" style="border-left: 4px solid #f59e0b; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="margin-bottom: 0.3rem;"><span>👨‍🍳</span> Control de Pagos a la Cocina (Despacho / Bryant)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Registra hasta qué día se le ha pagado al personal de cocina para llevar el control administrativo transparente.</p>
+        </div>
+        <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+          <div id="kitchen-paid-status-badge" style="padding: 0.5rem 1rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.9rem; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+            Cargando estado...
+          </div>
+          <button type="button" class="btn-report-action btn-report-primary" onclick="openKitchenPaymentModal()">
+            <span>💵</span> Registrar Pago a Cocina
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Pagos Históricos a Cocina -->
+      <div style="overflow-x: auto; margin-top: 1rem;">
+        <table class="orders-table" style="font-size: 0.9rem;">
+          <thead>
+            <tr>
+              <th>Fecha de Pago</th>
+              <th>Pagado Hasta el Día</th>
+              <th>Personal</th>
+              <th>Monto Pagado</th>
+              <th>Concepto / Nota</th>
+              <th>Registrado Por</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="kitchen-payments-tbody">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">
+                No hay pagos a cocina registrados aún.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Tabla Detallada de Comandas del Día -->
     <div class="data-table-container">
       <div class="table-toolbar">
@@ -220,6 +262,46 @@
         <div class="modal-footer">
           <button type="button" class="btn-report-action" onclick="closeSettingsModal()">Cerrar</button>
           <button type="submit" class="btn-report-action btn-report-primary">Guardar Ajustes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Registro de Pago a Cocina -->
+  <div class="modal-overlay" id="kitchen-payment-modal">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3>💵 Registrar Pago a Cocina (Bryant)</h3>
+        <button class="btn-close-modal" onclick="closeKitchenPaymentModal()">&times;</button>
+      </div>
+
+      <form id="kitchen-payment-form" onsubmit="event.preventDefault(); submitKitchenPayment();">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="kpay-upto-date">
+            <span>Pagado Hasta el Día (Inclusive):</span>
+            <span style="color: #60a5fa; font-size: 0.75rem;">Obligatorio</span>
+          </label>
+          <input type="date" id="kpay-upto-date" class="input-customer" style="font-size: 1.05rem; padding: 0.6rem 0.9rem;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="kpay-amount">Monto Pagado ($)</label>
+          <input type="number" id="kpay-amount" class="input-customer" style="font-size: 1.05rem; padding: 0.6rem 0.9rem;" step="any" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="kpay-to">Personal / Destinatario</label>
+          <input type="text" id="kpay-to" class="input-customer" style="font-size: 1rem; padding: 0.6rem 0.9rem;" value="Bryant (Cocina)" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label class="form-label" for="kpay-notes">Nota o Concepto (Opcional)</label>
+          <input type="text" id="kpay-notes" class="input-customer" style="font-size: 0.95rem; padding: 0.6rem 0.9rem;" placeholder="Ej. Pago semanal liquidado">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-report-action" onclick="closeKitchenPaymentModal()">Cancelar</button>
+          <button type="submit" class="btn-report-action btn-report-primary">Confirmar Pago</button>
         </div>
       </form>
     </div>

@@ -163,6 +163,11 @@ const POS_API = (() => {
         notifyListeners('settings_updated', settings);
       });
 
+      eventSource.addEventListener('kitchen_payment_updated', (e) => {
+        const data = JSON.parse(e.data);
+        notifyListeners('kitchen_payment_updated', data);
+      });
+
       eventSource.onerror = () => {
         setConnectionState(false);
       };
@@ -317,6 +322,32 @@ const POS_API = (() => {
     return `Hace ${hours} h`;
   }
 
+  async function getKitchenPayments() {
+    const res = await fetch('/api/kitchen-payments', { headers: getAuthHeaders() });
+    if (!res.ok) throw new Error('Error al cargar pagos de cocina');
+    return await res.json();
+  }
+
+  async function createKitchenPayment(paymentData) {
+    const res = await fetch('/api/kitchen-payments', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al registrar pago a cocina');
+    return data;
+  }
+
+  async function deleteKitchenPayment(paymentId) {
+    const res = await fetch(`/api/kitchen-payments/${paymentId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Error al eliminar registro de pago');
+    return await res.json();
+  }
+
   if (typeof window !== 'undefined') {
     init();
   }
@@ -337,6 +368,9 @@ const POS_API = (() => {
     updateOrderStatus,
     deleteOrder,
     getDailyStats,
+    getKitchenPayments,
+    createKitchenPayment,
+    deleteKitchenPayment,
     getServerInfo,
     formatCurrency,
     formatRelativeTime,
