@@ -234,6 +234,10 @@ POS_API.subscribe((event, data) => {
     renderKdsGrid();
   } else if (event === 'kitchen_payment_updated') {
     updateKitchenPaidBadge();
+  } else if (event === 'database_reset') {
+    allOrders = [];
+    renderKdsGrid();
+    updateKitchenPaidBadge();
   }
 });
 

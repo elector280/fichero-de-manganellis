@@ -259,6 +259,15 @@
           </div>
         </div>
 
+        <!-- Zona de Peligro: Reiniciar Datos de Prueba -->
+        <div style="border-top: 1px solid rgba(239, 68, 68, 0.3); padding-top: 1.2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: #f87171;">🧹 Limpieza de Datos de Prueba</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">Elimina todos los pedidos registrados y reinicia el contador de fichas a #001 para comenzar el restaurante de cero.</p>
+          <button type="button" class="btn-copy" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #f87171; padding: 0.7rem 1rem; font-weight: 700; width: 100%; cursor: pointer;" onclick="promptResetDatabase()">
+            🗑️ Eliminar Todos los Pedidos de Prueba (Reiniciar a Cero)
+          </button>
+        </div>
+
         <div class="modal-footer">
           <button type="button" class="btn-report-action" onclick="closeSettingsModal()">Cerrar</button>
           <button type="submit" class="btn-report-action btn-report-primary">Guardar Ajustes</button>

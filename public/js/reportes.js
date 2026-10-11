@@ -342,6 +342,23 @@ async function removeKitchenPayment(id) {
   }
 }
 
+// Limpiar base de datos y reiniciar de cero
+async function promptResetDatabase() {
+  if (!confirm('⚠️ ATENCIÓN:\n¿Estás seguro de que deseas eliminar TODOS los pedidos de prueba y reiniciar los contadores a cero?\n\nEsta acción no se puede deshacer.')) {
+    return;
+  }
+
+  try {
+    const res = await POS_API.resetDatabase();
+    alert('✅ ' + res.message);
+    closeSettingsModal();
+    loadReportsForDate();
+    loadKitchenPayments();
+  } catch (err) {
+    alert('❌ Error al reiniciar: ' + err.message);
+  }
+}
+
 // Suscribirse a eventos para refrescar en vivo
 POS_API.subscribe((event) => {
   const today = new Date().toISOString().split('T')[0];
@@ -349,6 +366,10 @@ POS_API.subscribe((event) => {
     loadReportsForDate();
   }
   if (event === 'kitchen_payment_updated') {
+    loadKitchenPayments();
+  }
+  if (event === 'database_reset') {
+    loadReportsForDate();
     loadKitchenPayments();
   }
 });

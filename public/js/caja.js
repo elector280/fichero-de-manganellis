@@ -233,6 +233,9 @@ POS_API.subscribe((event, data) => {
     unitPrice = data.productPrice || unitPrice;
     currencySymbol = data.currencySymbol || currencySymbol;
     updateTotals();
+  } else if (event === 'database_reset') {
+    todayOrders = [];
+    renderTodayOrders();
   }
 });
 

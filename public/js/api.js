@@ -348,6 +348,16 @@ const POS_API = (() => {
     return await res.json();
   }
 
+  async function resetDatabase() {
+    const res = await fetch('/api/admin/reset-database', {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al reiniciar datos');
+    return data;
+  }
+
   if (typeof window !== 'undefined') {
     init();
   }
@@ -362,6 +372,7 @@ const POS_API = (() => {
     requireAuth,
     getPublicUsers,
     changeUserPin,
+    resetDatabase,
     getOrders,
     getTodayOrders,
     createOrder,

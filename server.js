@@ -247,6 +247,18 @@ app.post('/api/users/change-pin', requireRole(['admin']), (req, res) => {
   res.json({ success: true, message: `PIN de ${user.name} actualizado correctamente` });
 });
 
+// Limpiar todos los pedidos y pruebas para empezar de cero (Solo Administrador)
+app.post('/api/admin/reset-database', requireRole(['admin']), (req, res) => {
+  db.orders = [];
+  db.dailyCounters = {};
+  db.kitchenPayments = [];
+  db.settings.kitchenPaidUpToDate = null;
+  saveData(db);
+
+  broadcastSSE('database_reset', { timestamp: new Date().toISOString() });
+  res.json({ success: true, message: 'Todos los pedidos de prueba han sido eliminados correctamente.' });
+});
+
 // ==================== RUTAS SSE EN TIEMPO REAL ====================
 app.get('/api/events', (req, res) => {
   res.writeHead(200, {

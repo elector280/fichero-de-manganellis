@@ -4,7 +4,7 @@
     "productPrice": 5,
     "currencySymbol": "$",
     "autoPrintTicket": false,
-    "kitchenPaidUpToDate": "2026-10-10"
+    "kitchenPaidUpToDate": null
   },
   "users": [
     {
@@ -32,95 +32,7 @@
       "title": "Administrador General"
     }
   ],
-  "dailyCounters": {
-    "2026-10-11": 4
-  },
-  "orders": [
-    {
-      "id": "ord_1791709220934_u3yi14",
-      "ticketNumber": "001",
-      "fullTicketCode": "#001",
-      "customerName": "Carlos Mendoza",
-      "quantity": 3,
-      "unitPrice": 5,
-      "total": 15,
-      "currencySymbol": "$",
-      "paymentMethod": "Efectivo",
-      "notes": "",
-      "status": "entregado",
-      "date": "2026-10-11",
-      "time": "05:00:20",
-      "createdAt": "2026-10-11T09:00:20.934Z",
-      "updatedAt": "2026-10-11T09:00:20.992Z",
-      "servedAt": "2026-10-11T09:00:20.992Z"
-    },
-    {
-      "id": "ord_1791709221002_94xei9",
-      "ticketNumber": "002",
-      "fullTicketCode": "#002",
-      "customerName": "Ana Lopez",
-      "quantity": 2,
-      "unitPrice": 5,
-      "total": 10,
-      "currencySymbol": "$",
-      "paymentMethod": "Tarjeta",
-      "notes": "",
-      "status": "entregado",
-      "date": "2026-10-11",
-      "time": "05:00:21",
-      "createdAt": "2026-10-11T09:00:21.002Z",
-      "updatedAt": "2026-10-11T09:21:34.740Z",
-      "servedAt": "2026-10-11T09:21:34.740Z"
-    },
-    {
-      "id": "ord_1791710485784_wylocd",
-      "ticketNumber": "003",
-      "fullTicketCode": "#003",
-      "customerName": "mauricio lozada",
-      "quantity": 5,
-      "unitPrice": 5,
-      "total": 25,
-      "currencySymbol": "$",
-      "paymentMethod": "Efectivo",
-      "notes": "",
-      "status": "entregado",
-      "date": "2026-10-11",
-      "time": "05:21:25",
-      "createdAt": "2026-10-11T09:21:25.783Z",
-      "updatedAt": "2026-10-11T09:21:33.690Z",
-      "servedAt": "2026-10-11T09:21:33.690Z"
-    },
-    {
-      "id": "ord_1791710734573_tttbf2",
-      "ticketNumber": "004",
-      "fullTicketCode": "#004",
-      "customerName": "Roberto Gomez",
-      "quantity": 4,
-      "unitPrice": 5,
-      "total": 20,
-      "currencySymbol": "$",
-      "paymentMethod": "Efectivo",
-      "notes": "",
-      "status": "entregado",
-      "date": "2026-10-11",
-      "time": "05:25:34",
-      "createdAt": "2026-10-11T09:25:34.573Z",
-      "updatedAt": "2026-10-11T09:25:34.654Z",
-      "servedAt": "2026-10-11T09:25:34.654Z",
-      "createdBy": "Fabricio",
-      "servedBy": "Bryant"
-    }
-  ],
-  "kitchenPayments": [
-    {
-      "id": "kpay_1791712221225_nbkmr6",
-      "paidUpToDate": "2026-10-10",
-      "paymentDate": "2026-10-11",
-      "amount": 120,
-      "paidTo": "Bryant (Cocina)",
-      "notes": "Pago semanal liquidado",
-      "registeredBy": "Administrador",
-      "createdAt": "2026-10-11T09:50:21.225Z"
-    }
-  ]
+  "dailyCounters": {},
+  "orders": [],
+  "kitchenPayments": []
 }
